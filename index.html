@@ -1,46 +1,243 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" id="htmlRoot">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stady – L'app de tes matchs</title>
+  <title id="pageTitle">Stady – L'app de tes matchs</title>
   <style>
-    body {
-      font-family: -apple-system, system-ui, sans-serif;
-      margin: 2rem;
-      line-height: 1.6;
-      color: #111;
-      background-color: #fefefe;
-    }
+    body { font-family: -apple-system, system-ui, sans-serif; margin: 2rem; line-height: 1.6; color: #111; background-color: #fefefe; }
     h1 { color: #1a73e8; }
     h2 { color: #333; margin-top: 1.5rem; }
     a { color: #1a73e8; text-decoration: none; }
     a:hover { text-decoration: underline; }
     ul { list-style-type: disc; margin-left: 1.5rem; }
     .contact { margin-top: 2rem; font-weight: bold; }
+    .lang-switcher { margin-bottom: 1.5rem; }
+    .lang-switcher button { margin-right: 0.5rem; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 1rem; border: 1px solid #ccc; border-radius: 6px; background: #fff; }
+    .lang-switcher button.active { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    .legal-block { margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+    .legal-block h3 { margin-top: 1rem; font-size: 1.1rem; }
+    .legal-block p, .legal-block ul { margin: 0.5rem 0; }
   </style>
 </head>
 <body>
-  <h1>Stady – L'app de tes matchs</h1>
-  <p>Immortalise chaque match auquel tu assistes et transforme tes expériences de stade en souvenirs uniques.</p>
+  <div class="lang-switcher">
+    <button type="button" id="langFr" aria-label="Français">🇫🇷 FR</button>
+    <button type="button" id="langEn" aria-label="English">🇬🇧 EN</button>
+  </div>
 
-  <h2>Fonctionnalités :</h2>
-  <ul>
+  <h1 id="mainTitle">Stady – L'app de tes matchs</h1>
+  <p id="mainIntro">Immortalise chaque match auquel tu assistes et transforme tes expériences de stade en souvenirs uniques.</p>
+
+  <h2 id="featuresTitle">Fonctionnalités :</h2>
+  <ul id="featuresList">
     <li>Enregistre tes matchs et suis ceux de tes amis</li>
     <li>Collectionne des badges</li>
     <li>Ajoute photos, notes et souvenirs</li>
     <li>Découvre les matchs de la communauté</li>
   </ul>
 
-  <h2>Télécharger l’app :</h2>
+  <h2 id="downloadTitle">Télécharger l'app :</h2>
   <p>
-    <a href="https://apps.apple.com/fr/app/stady/idXXXXXXXXX">Lien vers l'App Store</a>
+    <a href="https://apps.apple.com/fr/app/stady/idXXXXXXXXX" id="appStoreLink">Lien vers l'App Store</a>
   </p>
 
-  <h2>Contact :</h2>
-  <p class="contact">
-    Pour toute question ou suggestion, contactez-nous à 
+  <h2 id="cguTitle">Conditions générales d'utilisation</h2>
+  <div class="legal-block" id="cguContent"></div>
+
+  <h2 id="privacyTitle">Politique de confidentialité</h2>
+  <div class="legal-block" id="privacyContent"></div>
+
+  <h2 id="contactTitle">Contact :</h2>
+  <p class="contact" id="contactText">
+    Pour toute question ou suggestion, contactez-nous à
     <a href="mailto:contactstady@gmail.com">contactstady@gmail.com</a>
   </p>
+
+  <script>
+    const CONTACT_EMAIL = 'contactstady@gmail.com';
+    const PUBLISHER = 'Stady';
+    const LEGAL_DATE = '10 février 2025';
+
+    const t = {
+      fr: {
+        pageTitle: "Stady – L'app de tes matchs",
+        mainTitle: "Stady – L'app de tes matchs",
+        mainIntro: "Immortalise chaque match auquel tu assistes et transforme tes expériences de stade en souvenirs uniques.",
+        featuresTitle: "Fonctionnalités :",
+        f1: "Enregistre tes matchs et suis ceux de tes amis",
+        f2: "Collectionne des badges",
+        f3: "Ajoute photos, notes et souvenirs",
+        f4: "Découvre les matchs de la communauté",
+        downloadTitle: "Télécharger l'app :",
+        appStoreLink: "Lien vers l'App Store",
+        cguTitle: "Conditions générales d'utilisation",
+        privacyTitle: "Politique de confidentialité",
+        contactTitle: "Contact :",
+        contactText: "Pour toute question ou suggestion, contactez-nous à",
+        cguLastUpdate: "Dernière mise à jour : " + LEGAL_DATE,
+        cguS1Title: "1. Objet et acceptation",
+        cguS1Body: "Les présentes Conditions générales d'utilisation (CGU) s'appliquent à l'utilisation de l'application mobile Stady, éditée par " + PUBLISHER + ". En créant un compte ou en utilisant l'application, vous acceptez sans réserve les présentes CGU. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'application.",
+        cguS2Title: "2. Description du service",
+        cguS2Body: "Stady est une application permettant de créer et de consulter des « cartes match » : enregistrement de matchs (équipes, scores, date, stade, sport, compétition, photos), consultation de stades, et déblocage de badges en fonction de votre activité. Certaines fonctionnalités peuvent permettre de partager une visibilité limitée de votre profil (matchs) avec d'autres utilisateurs, selon vos réglages.",
+        cguS3Title: "3. Compte utilisateur",
+        cguS3Body: "La création d'un compte est nécessaire pour utiliser les fonctionnalités principales de l'application. Vous vous engagez à fournir des informations exactes et à maintenir la confidentialité de vos identifiants. Vous êtes responsable de toute activité réalisée depuis votre compte. En cas de perte ou d'utilisation non autorisée, contactez-nous sans délai.",
+        cguS4Title: "4. Règles d'utilisation",
+        cguS4Body: "Vous vous engagez à utiliser l'application de manière licite et dans le respect des droits des tiers. Sont notamment interdits : l'usurpation d'identité, la diffusion de contenu illicite, diffamatoire ou portant atteinte à autrui, toute utilisation visant à contourner le bon fonctionnement du service ou à nuire à d'autres utilisateurs. " + PUBLISHER + " se réserve le droit de suspendre ou de résilier tout compte en cas de manquement à ces règles.",
+        cguS5Title: "5. Propriété intellectuelle",
+        cguS5Body: "L'application, son contenu (textes, visuels, structure, marques) et ses composants sont protégés par le droit de la propriété intellectuelle et appartiennent à " + PUBLISHER + " ou à ses concédants. Vous conservez la propriété des contenus que vous créez (matchs, photos, commentaires). En publiant du contenu dans l'application, vous accordez à " + PUBLISHER + " une licence non exclusive, mondiale et gratuite nécessaire à la fourniture du service (affichage, stockage, mise à disposition selon vos réglages).",
+        cguS6Title: "6. Responsabilité",
+        cguS6Body: "Le service est fourni « tel quel ». " + PUBLISHER + " s'efforce d'assurer la disponibilité et la sécurité du service mais ne peut garantir un fonctionnement ininterrompu ou sans erreur. Dans les limites autorisées par la loi, la responsabilité de " + PUBLISHER + " ne pourra excéder le préjudice direct et prévisible résultant de l'utilisation de l'application. Vous utilisez l'application à vos propres risques.",
+        cguS7Title: "7. Résiliation",
+        cguS7Body: "Vous pouvez supprimer votre compte à tout moment depuis les réglages de l'application. " + PUBLISHER + " peut suspendre ou résilier votre accès en cas de violation des présentes CGU ou pour tout motif légitime, avec ou sans préavis. En cas de résiliation, votre droit d'utilisation du service prend fin. Le traitement de vos données personnelles est régi par notre Politique de confidentialité.",
+        cguS8Title: "8. Droit applicable et litiges",
+        cguS8Body: "Les présentes CGU sont régies par le droit français. En cas de litige, et à défaut de résolution amiable, les tribunaux français seront seuls compétents.",
+        cguS9Title: "9. Contact",
+        cguS9Body: "Pour toute question relative aux présentes Conditions générales d'utilisation, vous pouvez nous contacter à : " + CONTACT_EMAIL + ".",
+        privacyLastUpdate: "Dernière mise à jour : " + LEGAL_DATE,
+        privacyS1Title: "1. Responsable du traitement",
+        privacyS1Body: "Le responsable du traitement des données personnelles est " + PUBLISHER + ". Pour toute question relative à vos données personnelles, vous pouvez nous contacter à l'adresse : " + CONTACT_EMAIL + ".",
+        privacyS2Title: "2. Données collectées",
+        privacyS2Intro: "Nous collectons les données suivantes dans le cadre de l'utilisation de l'application Stady :",
+        privacyS2Account: "• Données de compte : adresse e-mail, pseudonyme, prénom, nom, photo de profil, choix de visibilité du profil (public ou privé).",
+        privacyS2Content: "• Données de contenu : les matchs que vous créez (équipes, scores, date, stade, sport, compétition, photos des matchs, commentaires), ainsi que les badges débloqués.",
+        privacyS2Technical: "• Données techniques : identifiant de connexion (Firebase Authentication), données nécessaires au fonctionnement de l'application (hébergement, authentification, stockage).",
+        privacyS3Title: "3. Finalités et bases légales",
+        privacyS3_1: "Vos données sont traitées pour : la création et la gestion de votre compte ; la fourniture du service (enregistrement et affichage de vos matchs, stades, badges) ; la personnalisation de l'application (profil, visibilité) ; le respect de nos obligations légales.",
+        privacyS3_2: "Les bases légales sont l'exécution du contrat (utilisation du service) et, le cas échéant, votre consentement (par exemple pour la visibilité du profil ou l'utilisation de certaines fonctionnalités).",
+        privacyS4Title: "4. Durée de conservation",
+        privacyS4Body: "Vos données sont conservées tant que votre compte est actif. Vous pouvez à tout moment demander la suppression de votre compte et de vos données associées via la fonction « Supprimer mon compte » dans l'application ou en nous contactant. Certaines données peuvent être conservées pendant les durées légales applicables (obligations comptables, litiges).",
+        privacyS5Title: "5. Destinataires et sous-traitants",
+        privacyS5Body: "Vos données sont hébergées et traitées via les services Firebase (Google) : authentification (Firebase Auth), base de données (Firestore), stockage des fichiers (Firebase Storage). Ces sous-traitants agissent selon nos instructions et conformément à des engagements de confidentialité et de sécurité. Vous pouvez consulter les politiques de confidentialité de Google pour plus d'informations.",
+        privacyS6Title: "6. Transferts hors Union européenne",
+        privacyS6Body: "Les serveurs des prestataires que nous utilisons (notamment Google) peuvent être situés dans des pays hors de l'Union européenne. Dans ce cas, des garanties appropriées sont mises en œuvre (clauses contractuelles types de la Commission européenne ou décisions d'adéquation) afin de protéger vos données conformément au droit européen.",
+        privacyS7Title: "7. Vos droits (RGPD)",
+        privacyS7Body: "Conformément au Règlement général sur la protection des données (RGPD), vous disposez des droits suivants : droit d'accès à vos données ; droit de rectification ; droit à l'effacement (« droit à l'oubli ») ; droit à la portabilité de vos données ; droit d'opposition au traitement ; droit à la limitation du traitement ; droit de retirer votre consentement à tout moment. Vous pouvez exercer ces droits en nous contactant à l'adresse indiquée au point 1. Vous avez également le droit d'introduire une réclamation auprès de la CNIL : www.cnil.fr.",
+        privacyS8Title: "8. Sécurité",
+        privacyS8Body: "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données personnelles contre l'accès non autorisé, la perte, la destruction ou l'altération. L'authentification et les échanges sont sécurisés (HTTPS, services Firebase).",
+        privacyS9Title: "9. Modifications",
+        privacyS9Body: "Nous pouvons mettre à jour cette politique de confidentialité. La date de dernière mise à jour est indiquée en tête de document. En cas de changement substantiel, nous vous en informerons, par exemple via une mention dans l'application ou par e-mail.",
+        privacyS10Title: "10. Nous contacter",
+        privacyS10Body: "Pour toute question relative à cette politique ou pour exercer vos droits, contactez-nous à : " + CONTACT_EMAIL + "."
+      },
+      en: {
+        pageTitle: "Stady – Your match app",
+        mainTitle: "Stady – Your match app",
+        mainIntro: "Capture every match you attend and turn your stadium experiences into unique memories.",
+        featuresTitle: "Features:",
+        f1: "Record your matches and follow your friends'",
+        f2: "Collect badges",
+        f3: "Add photos, notes and memories",
+        f4: "Discover the community's matches",
+        downloadTitle: "Download the app:",
+        appStoreLink: "Link to the App Store",
+        cguTitle: "Terms of use",
+        privacyTitle: "Privacy policy",
+        contactTitle: "Contact:",
+        contactText: "For any question or suggestion, contact us at",
+        cguLastUpdate: "Last update: " + LEGAL_DATE,
+        cguS1Title: "1. Purpose and acceptance",
+        cguS1Body: "These Terms of Use (ToU) apply to the use of the Stady mobile application, published by " + PUBLISHER + ". By creating an account or using the application, you unconditionally accept these ToU. If you do not accept these terms, please do not use the application.",
+        cguS2Title: "2. Description of the service",
+        cguS2Body: "Stady is an application that allows you to create and view \"match cards\": recording matches (teams, scores, date, venue, sport, competition, photos), viewing venues, and unlocking badges based on your activity. Some features may allow you to share limited visibility of your profile (matches) with other users, according to your settings.",
+        cguS3Title: "3. User account",
+        cguS3Body: "Creating an account is required to use the main features of the application. You agree to provide accurate information and to keep your credentials confidential. You are responsible for any activity carried out from your account. In case of loss or unauthorised use, contact us without delay.",
+        cguS4Title: "4. Rules of use",
+        cguS4Body: "You agree to use the application lawfully and in respect of third-party rights. The following are in particular prohibited: identity theft, distribution of unlawful, defamatory or harmful content, any use aimed at circumventing the proper functioning of the service or harming other users. " + PUBLISHER + " reserves the right to suspend or terminate any account in the event of breach of these rules.",
+        cguS5Title: "5. Intellectual property",
+        cguS5Body: "The application, its content (texts, visuals, structure, trademarks) and its components are protected by intellectual property law and belong to " + PUBLISHER + " or its licensors. You retain ownership of the content you create (matches, photos, comments). By publishing content in the application, you grant " + PUBLISHER + " a non-exclusive, worldwide, royalty-free licence necessary to provide the service (display, storage, making available according to your settings).",
+        cguS6Title: "6. Liability",
+        cguS6Body: "The service is provided \"as is\". " + PUBLISHER + " endeavours to ensure the availability and security of the service but cannot guarantee uninterrupted or error-free operation. Within the limits permitted by law, " + PUBLISHER + "'s liability shall not exceed direct and foreseeable damage arising from use of the application. You use the application at your own risk.",
+        cguS7Title: "7. Termination",
+        cguS7Body: "You may delete your account at any time from the application settings. " + PUBLISHER + " may suspend or terminate your access in the event of violation of these ToU or for any legitimate reason, with or without notice. Upon termination, your right to use the service ends. The handling of your personal data is governed by our Privacy Policy.",
+        cguS8Title: "8. Governing law and disputes",
+        cguS8Body: "These ToU are governed by French law. In the event of a dispute, and failing amicable resolution, the French courts shall have exclusive jurisdiction.",
+        cguS9Title: "9. Contact",
+        cguS9Body: "For any questions regarding these Terms of Use, you may contact us at: " + CONTACT_EMAIL + ".",
+        privacyLastUpdate: "Last update: " + LEGAL_DATE,
+        privacyS1Title: "1. Data controller",
+        privacyS1Body: "The data controller for personal data is " + PUBLISHER + ". For any questions regarding your personal data, you can contact us at: " + CONTACT_EMAIL + ".",
+        privacyS2Title: "2. Data collected",
+        privacyS2Intro: "We collect the following data in connection with your use of the Stady application:",
+        privacyS2Account: "• Account data: email address, nickname, first name, last name, profile photo, profile visibility setting (public or private).",
+        privacyS2Content: "• Content data: the matches you create (teams, scores, date, venue, sport, competition, match photos, comments), as well as badges unlocked.",
+        privacyS2Technical: "• Technical data: login identifier (Firebase Authentication), data required for the application to function (hosting, authentication, storage).",
+        privacyS3Title: "3. Purposes and legal basis",
+        privacyS3_1: "Your data is processed for: creating and managing your account; providing the service (recording and displaying your matches, venues, badges); personalising the application (profile, visibility); and complying with our legal obligations.",
+        privacyS3_2: "The legal basis is performance of the contract (use of the service) and, where applicable, your consent (for example for profile visibility or use of certain features).",
+        privacyS4Title: "4. Retention period",
+        privacyS4Body: "Your data is retained for as long as your account is active. You may at any time request deletion of your account and associated data via the \"Delete my account\" function in the application or by contacting us. Some data may be retained for the periods required by law (accounting obligations, disputes).",
+        privacyS5Title: "5. Recipients and processors",
+        privacyS5Body: "Your data is hosted and processed via Firebase (Google) services: authentication (Firebase Auth), database (Firestore), file storage (Firebase Storage). These processors act on our instructions and in accordance with confidentiality and security commitments. You can consult Google's privacy policies for more information.",
+        privacyS6Title: "6. Transfers outside the European Union",
+        privacyS6Body: "The servers of the providers we use (including Google) may be located in countries outside the European Union. In such cases, appropriate safeguards are in place (EU standard contractual clauses or adequacy decisions) to protect your data in accordance with European law.",
+        privacyS7Title: "7. Your rights (GDPR)",
+        privacyS7Body: "In accordance with the General Data Protection Regulation (GDPR), you have the following rights: right of access to your data; right to rectification; right to erasure (\"right to be forgotten\"); right to data portability; right to object to processing; right to restriction of processing; right to withdraw your consent at any time. You may exercise these rights by contacting us at the address given in section 1. You also have the right to lodge a complaint with your national data protection authority (e.g. CNIL in France: www.cnil.fr).",
+        privacyS8Title: "8. Security",
+        privacyS8Body: "We implement appropriate technical and organisational measures to protect your personal data against unauthorised access, loss, destruction or alteration. Authentication and communications are secured (HTTPS, Firebase services).",
+        privacyS9Title: "9. Changes",
+        privacyS9Body: "We may update this privacy policy. The last update date is shown at the top of the document. In the event of a substantial change, we will inform you, for example via a notice in the application or by email.",
+        privacyS10Title: "10. Contact us",
+        privacyS10Body: "For any questions about this policy or to exercise your rights, contact us at: " + CONTACT_EMAIL + "."
+      }
+    };
+
+    const LEGAL_DATE_EN = "February 10, 2025";
+    t.en.cguLastUpdate = "Last update: " + LEGAL_DATE_EN;
+    t.en.privacyLastUpdate = "Last update: " + LEGAL_DATE_EN;
+
+    let lang = 'fr';
+
+    function applyLang(l) {
+      lang = l;
+      document.documentElement.lang = l;
+      const d = t[l];
+
+      document.getElementById('pageTitle').textContent = d.pageTitle;
+      document.getElementById('mainTitle').textContent = d.mainTitle;
+      document.getElementById('mainIntro').textContent = d.mainIntro;
+      document.getElementById('featuresTitle').textContent = d.featuresTitle;
+      document.getElementById('featuresList').innerHTML = '<li>' + [d.f1, d.f2, d.f3, d.f4].join('</li><li>') + '</li>';
+      document.getElementById('downloadTitle').textContent = d.downloadTitle;
+      document.getElementById('appStoreLink').textContent = d.appStoreLink;
+      document.getElementById('cguTitle').textContent = d.cguTitle;
+      document.getElementById('privacyTitle').textContent = d.privacyTitle;
+      document.getElementById('contactTitle').textContent = d.contactTitle;
+      document.getElementById('contactText').innerHTML = d.contactText + ' <a href="mailto:' + CONTACT_EMAIL + '">' + CONTACT_EMAIL + '</a>';
+
+      document.getElementById('cguContent').innerHTML =
+        '<p><em>' + d.cguLastUpdate + '</em></p>' +
+        '<h3>' + d.cguS1Title + '</h3><p>' + d.cguS1Body + '</p>' +
+        '<h3>' + d.cguS2Title + '</h3><p>' + d.cguS2Body + '</p>' +
+        '<h3>' + d.cguS3Title + '</h3><p>' + d.cguS3Body + '</p>' +
+        '<h3>' + d.cguS4Title + '</h3><p>' + d.cguS4Body + '</p>' +
+        '<h3>' + d.cguS5Title + '</h3><p>' + d.cguS5Body + '</p>' +
+        '<h3>' + d.cguS6Title + '</h3><p>' + d.cguS6Body + '</p>' +
+        '<h3>' + d.cguS7Title + '</h3><p>' + d.cguS7Body + '</p>' +
+        '<h3>' + d.cguS8Title + '</h3><p>' + d.cguS8Body + '</p>' +
+        '<h3>' + d.cguS9Title + '</h3><p>' + d.cguS9Body + '</p>';
+
+      document.getElementById('privacyContent').innerHTML =
+        '<p><em>' + d.privacyLastUpdate + '</em></p>' +
+        '<h3>' + d.privacyS1Title + '</h3><p>' + d.privacyS1Body + '</p>' +
+        '<h3>' + d.privacyS2Title + '</h3><p>' + d.privacyS2Intro + '</p><ul><li>' + d.privacyS2Account + '</li><li>' + d.privacyS2Content + '</li><li>' + d.privacyS2Technical + '</li></ul>' +
+        '<h3>' + d.privacyS3Title + '</h3><p>' + d.privacyS3_1 + '</p><p>' + d.privacyS3_2 + '</p>' +
+        '<h3>' + d.privacyS4Title + '</h3><p>' + d.privacyS4Body + '</p>' +
+        '<h3>' + d.privacyS5Title + '</h3><p>' + d.privacyS5Body + '</p>' +
+        '<h3>' + d.privacyS6Title + '</h3><p>' + d.privacyS6Body + '</p>' +
+        '<h3>' + d.privacyS7Title + '</h3><p>' + d.privacyS7Body + '</p>' +
+        '<h3>' + d.privacyS8Title + '</h3><p>' + d.privacyS8Body + '</p>' +
+        '<h3>' + d.privacyS9Title + '</h3><p>' + d.privacyS9Body + '</p>' +
+        '<h3>' + d.privacyS10Title + '</h3><p>' + d.privacyS10Body + '</p>';
+
+      document.getElementById('langFr').classList.toggle('active', l === 'fr');
+      document.getElementById('langEn').classList.toggle('active', l === 'en');
+    }
+
+    document.getElementById('langFr').addEventListener('click', function() { applyLang('fr'); });
+    document.getElementById('langEn').addEventListener('click', function() { applyLang('en'); });
+
+    applyLang('fr');
+  </script>
 </body>
 </html>
