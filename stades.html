@@ -33,6 +33,9 @@
             <th>Ville</th>
             <th>Pays</th>
             <th>Cap.</th>
+            <th>Club</th>
+            <th>Lat</th>
+            <th>Long</th>
             <th>Image</th>
             <th>Descriptif</th>
             <th>Sports</th>
@@ -56,12 +59,18 @@
         var nom = escapeHtml(s.nom || '');
         var ville = escapeHtml(s.ville || '');
         var pays = escapeHtml(s.pays || '');
+        var club = escapeHtml(s.club || '');
         var desc = escapeHtml(s.descriptif || '');
+        var lat = s.latitude != null && s.latitude !== '' ? String(s.latitude) : '';
+        var long = s.longitude != null && s.longitude !== '' ? String(s.longitude) : '';
         return '<tr data-id="' + s.id + '">' +
           '<td><input type="text" class="row-nom" value="' + nom + '" placeholder="Nom"></td>' +
           '<td><input type="text" class="row-ville" value="' + ville + '" placeholder="Ville"></td>' +
           '<td><input type="text" class="row-pays" value="' + pays + '" placeholder="Pays"></td>' +
           '<td><input type="number" class="row-capacite" min="0" value="' + (s.capacite ?? '') + '" placeholder="0"></td>' +
+          '<td><input type="text" class="row-club" value="' + club + '" placeholder="Club"></td>' +
+          '<td><input type="number" class="row-latitude" step="any" value="' + lat + '" placeholder="Lat"></td>' +
+          '<td><input type="number" class="row-longitude" step="any" value="' + long + '" placeholder="Long"></td>' +
           '<td class="cell-image">' +
             '<input type="file" class="row-image-files" accept="image/*" multiple style="display:none">' +
             '<button type="button" class="btn btn-secondary btn-browse-row">Parcourir</button>' +
@@ -84,11 +93,15 @@
       }
 
       function getPayloadFromRow(tr) {
-        var id = tr.dataset.id;
         var nom = tr.querySelector('.row-nom').value.trim();
         var capacite = Number(tr.querySelector('.row-capacite').value) || 0;
         var ville = tr.querySelector('.row-ville').value.trim() || null;
         var pays = tr.querySelector('.row-pays').value.trim() || null;
+        var club = tr.querySelector('.row-club').value.trim() || null;
+        var latVal = tr.querySelector('.row-latitude').value.trim();
+        var longVal = tr.querySelector('.row-longitude').value.trim();
+        var latitude = latVal === '' ? null : Number(latVal);
+        var longitude = longVal === '' ? null : Number(longVal);
         var descriptif = tr.querySelector('.row-descriptif').value.trim() || null;
         var sports = Array.from(tr.querySelectorAll('.row-sport:checked')).map(function(c) { return c.value; });
         var isSystem = tr.querySelector('.row-isSystem').checked;
@@ -97,6 +110,9 @@
           capacite: capacite,
           ville: ville,
           pays: pays,
+          club: club,
+          latitude: latitude,
+          longitude: longitude,
           descriptif: descriptif,
           sports: sports.length ? sports : null,
           isSystem: isSystem,
@@ -134,21 +150,7 @@
         } else {
           payload.images = existingImages.length ? existingImages : null;
         }
-        var current = await dbStades.get(id);
-        var merged = {
-          nom: payload.nom,
-          capacite: payload.capacite,
-          descriptif: payload.descriptif,
-          images: payload.images,
-          ville: payload.ville,
-          pays: payload.pays,
-          club: current.club || null,
-          latitude: current.latitude,
-          longitude: current.longitude,
-          isSystem: payload.isSystem,
-          sports: payload.sports
-        };
-        await dbStades.set(id, merged);
+        await dbStades.set(id, payload);
         saveBtn.textContent = 'Save';
         tr.dataset.images = payload.images && payload.images.length ? JSON.stringify(payload.images) : '';
         errEl.textContent = '';
@@ -160,7 +162,7 @@
           var list = await dbStades.list();
           loading.style.display = 'none';
           if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9">Aucun stade. <a href="stade-form.html">Créer un stade</a></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12">Aucun stade. <a href="stade-form.html">Créer un stade</a></td></tr>';
           } else {
             tbody.innerHTML = list.map(function(s) { return rowHtml(s); }).join('');
             list.forEach(function(s, i) {
