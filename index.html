@@ -28,7 +28,10 @@
       messagingSenderId: "1006357453956",
       appId: "1:1006357453956:web:4fad228b047bbc80cc76d1"
     };
-    if (window.FIREBASE_CONFIG.apiKey) firebase.initializeApp(window.FIREBASE_CONFIG);
+    if (window.FIREBASE_CONFIG.apiKey) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+      window.firebaseAuth = firebase.auth();
+    }
   </script>
   <script src="js/auth.js"></script>
 </head>
