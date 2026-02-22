@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vérification config – Backoffice Stady</title>
+  <script>
+    (function(){var p=location.pathname;if(p&&p!=='/'&&location.origin!=='file://'){var b=document.createElement('base');b.href=location.origin+p.replace(/\/?[^/]*$/,'')+'/';document.head.appendChild(b);}})();
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .check-ok { color: #0d8050; }
+    .check-ko { color: #c5221f; }
+    .check-list { list-style: none; padding-left: 0; }
+    .check-list li { margin: 8px 0; }
+    .panel { background: #fff; padding: 16px; border-radius: 8px; margin: 16px 0; max-width: 600px; }
+    pre { background: #f5f5f5; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.min.js"></script>
+  <script>
+    window.FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCQuu6AshX4Kz3EJoAntNAzNxxzIkDEbpw",
+      authDomain: "stady-98226.firebaseapp.com",
+      projectId: "stady-98226",
+      storageBucket: "stady-98226.firebasestorage.app",
+      messagingSenderId: "1006357453956",
+      appId: "1:1006357453956:web:4fad228b047bbc80cc76d1"
+    };
+    if (window.FIREBASE_CONFIG.apiKey) firebase.initializeApp(window.FIREBASE_CONFIG);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <p><a href="index.html">← Retour au backoffice</a></p>
+    <h1>Vérification de l’application Web Firebase</h1>
+
+    <div class="panel">
+      <h2>Résultats des tests (côté navigateur)</h2>
+      <ul id="results" class="check-list"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Config utilisée</h2>
+      <pre id="config-display"></pre>
+    </div>
+
+    <div class="panel">
+      <h2>À vérifier dans la console Firebase</h2>
+      <p>Ouvre <a href="https://console.firebase.google.com/project/stady-98226/settings/general" target="_blank" rel="noopener">Paramètres du projet stady-98226</a> et vérifie :</p>
+      <ul class="check-list">
+        <li><strong>« Vos applications »</strong> : une application Web (icône &lt;/&gt;) doit être présente avec le même <code>projectId</code> (stady-98226).</li>
+        <li><strong>Authentication → Sign-in method</strong> : la méthode <strong>E-mail/Mot de passe</strong> doit être <strong>activée</strong>.</li>
+        <li><strong>Authentication → Users</strong> : au moins un utilisateur (email + mot de passe) doit exister pour te connecter au backoffice.</li>
+        <li><strong>Firestore → Règles</strong> : les collections <code>Stades</code> et <code>Contestants</code> doivent autoriser <code>read, write</code> si <code>request.auth != null</code>.</li>
+      </ul>
+      <p><a href="https://console.firebase.google.com/project/stady-98226/authentication/providers" target="_blank" rel="noopener">→ Ouvrir l’onglet Méthodes de connexion</a><br>
+      <a href="https://console.firebase.google.com/project/stady-98226/authentication/users" target="_blank" rel="noopener">→ Ouvrir la liste des utilisateurs</a></p>
+    </div>
+  </div>
+  <script>
+    (function() {
+      var c = window.FIREBASE_CONFIG || {};
+      var configDisplay = {
+        projectId: c.projectId,
+        authDomain: c.authDomain,
+        apiKey: c.apiKey ? c.apiKey.substring(0, 10) + '…' : '(manquant)',
+        appId: c.appId ? c.appId.substring(0, 20) + '…' : '(manquant)'
+      };
+      document.getElementById('config-display').textContent = JSON.stringify(configDisplay, null, 2);
+
+      var list = document.getElementById('results');
+      function add(ok, label) {
+        var li = document.createElement('li');
+        li.className = ok ? 'check-ok' : 'check-ko';
+        li.textContent = (ok ? '✓ ' : '✗ ') + label;
+        list.appendChild(li);
+      }
+
+      add(!!c.apiKey && c.apiKey !== 'YOUR_API_KEY', 'Config présente (apiKey renseignée)');
+      add(!!c.projectId && c.projectId === 'stady-98226', 'projectId = stady-98226');
+      add(!!c.authDomain, 'authDomain défini');
+
+      if (typeof firebase === 'undefined') {
+        add(false, 'SDK Firebase chargé');
+        return;
+      }
+      add(true, 'SDK Firebase chargé');
+
+      if (!firebase.apps || !firebase.apps.length) {
+        add(false, 'Firebase initialisé');
+        return;
+      }
+      add(true, 'Firebase initialisé');
+
+      try {
+        var auth = firebase.auth();
+        add(!!auth, 'Auth disponible');
+      } catch (e) {
+        add(false, 'Auth disponible : ' + e.message);
+      }
+
+      try {
+        var db = firebase.firestore();
+        add(!!db, 'Firestore disponible');
+      } catch (e) {
+        add(false, 'Firestore disponible : ' + e.message);
+      }
+    })();
+  </script>
+</body>
+</html>

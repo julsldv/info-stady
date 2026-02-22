@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contestant – Backoffice Stady</title>
-  <script>(function(){var p=location.pathname;if(location.origin!=='file://'&&p.split('/').filter(Boolean).length>1){var b=document.createElement('base');b.href=location.origin+p.replace(/\/?[^/]*$/,'')+'/';document.head.appendChild(b);}})();</script>
+  <script>(function(){var p=location.pathname;if(p&&p!=='/'&&location.origin!=='file://'){var b=document.createElement('base');b.href=location.origin+p.replace(/\/?[^/]*$/,'')+'/';document.head.appendChild(b);}})();</script>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
