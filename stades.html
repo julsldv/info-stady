@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-auth-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-firestore-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-storage-compat.min.js"></script>
   <script src="js/config.firebase.js"></script>
   <script>if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') firebase.initializeApp(window.FIREBASE_CONFIG);</script>
   <script src="js/auth.js"></script>
@@ -16,71 +17,196 @@
   <script src="js/app.js"></script>
 </head>
 <body>
-  <div class="container">
-    <p><a href="index.html">← Accueil</a></p>
-    <h1>Stades</h1>
-    <p><a href="stade-form.html" class="btn btn-primary">Nouveau stade</a></p>
+  <div class="container stades-list-page">
+    <header class="stades-header">
+      <a href="index.html">← Accueil</a>
+      <h1>Stades</h1>
+      <a href="stade-form.html" class="btn btn-primary">Nouveau stade</a>
+    </header>
     <p id="error" class="error"></p>
     <p id="loading" class="loading">Chargement…</p>
-    <table id="table" style="display:none;">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Ville</th>
-          <th>Pays</th>
-          <th>Capacité</th>
-          <th>Sports</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-wrap" id="tableWrap" style="display:none;">
+      <table id="table" class="stades-editable-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Ville</th>
+            <th>Pays</th>
+            <th>Cap.</th>
+            <th>Image</th>
+            <th>Descriptif</th>
+            <th>Sports</th>
+            <th>isSystem</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
   <script>
-    (async function() {
-      const tbody = document.querySelector('#table tbody');
-      const loading = document.getElementById('loading');
-      const errEl = document.getElementById('error');
-      const table = document.getElementById('table');
-      try {
-        await requireAuth();
-        const list = await dbStades.list();
-        loading.style.display = 'none';
-        if (list.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6">Aucun stade.</td></tr>';
-        } else {
-          tbody.innerHTML = list.map(s => {
-            const sports = (s.sports && s.sports.length) ? s.sports.join(', ') : '—';
-            return `<tr>
-              <td>${escapeHtml(s.nom || '')}</td>
-              <td>${escapeHtml(s.ville || '—')}</td>
-              <td>${escapeHtml(s.pays || '—')}</td>
-              <td>${s.capacite ?? '—'}</td>
-              <td>${escapeHtml(sports)}</td>
-              <td>
-                <a href="stade-form.html?id=${s.id}" class="edit">Modifier</a>
-                <a href="#" class="delete" data-id="${s.id}" data-nom="${escapeHtml(s.nom || '')}">Supprimer</a>
-              </td>
-            </tr>`;
-          }).join('');
-        }
-        table.style.display = 'table';
-        tbody.closest('table').querySelectorAll('a.delete').forEach(a => {
-          a.addEventListener('click', async e => {
-            e.preventDefault();
-            if (!confirm('Supprimer le stade « ' + a.dataset.nom + ' » ?')) return;
-            try {
-              await dbStades.delete(a.dataset.id);
-              a.closest('tr').remove();
-            } catch (err) {
-              errEl.textContent = err.message;
-            }
-          });
-        });
-      } catch (err) {
-        loading.style.display = 'none';
-        if (err.message !== 'Non authentifié') errEl.textContent = err.message;
+    (function() {
+      var tbody = document.getElementById('tbody');
+      var loading = document.getElementById('loading');
+      var errEl = document.getElementById('error');
+      var tableWrap = document.getElementById('tableWrap');
+
+      function rowHtml(s) {
+        var sports = (s.sports || []).slice();
+        var nom = escapeHtml(s.nom || '');
+        var ville = escapeHtml(s.ville || '');
+        var pays = escapeHtml(s.pays || '');
+        var desc = escapeHtml(s.descriptif || '');
+        return '<tr data-id="' + s.id + '">' +
+          '<td><input type="text" class="row-nom" value="' + nom + '" placeholder="Nom"></td>' +
+          '<td><input type="text" class="row-ville" value="' + ville + '" placeholder="Ville"></td>' +
+          '<td><input type="text" class="row-pays" value="' + pays + '" placeholder="Pays"></td>' +
+          '<td><input type="number" class="row-capacite" min="0" value="' + (s.capacite ?? '') + '" placeholder="0"></td>' +
+          '<td class="cell-image">' +
+            '<input type="file" class="row-image-files" accept="image/*" multiple style="display:none">' +
+            '<button type="button" class="btn btn-secondary btn-browse-row">Parcourir</button>' +
+            '<span class="row-file-label">—</span>' +
+          '</td>' +
+          '<td><input type="text" class="row-descriptif" value="' + desc + '" placeholder="Descriptif"></td>' +
+          '<td class="cell-sports">' +
+            '<label><input type="checkbox" class="row-sport" value="football"' + (sports.indexOf('football') >= 0 ? ' checked' : '') + '> Fb</label>' +
+            '<label><input type="checkbox" class="row-sport" value="rugby"' + (sports.indexOf('rugby') >= 0 ? ' checked' : '') + '> Rg</label>' +
+            '<label><input type="checkbox" class="row-sport" value="tennis"' + (sports.indexOf('tennis') >= 0 ? ' checked' : '') + '> Tn</label>' +
+            '<label><input type="checkbox" class="row-sport" value="basket"' + (sports.indexOf('basket') >= 0 ? ' checked' : '') + '> Bk</label>' +
+          '</td>' +
+          '<td><label class="chk-label"><input type="checkbox" class="row-isSystem"' + (s.isSystem ? ' checked' : '') + '></label></td>' +
+          '<td class="cell-actions">' +
+            '<button type="button" class="btn btn-primary btn-row-save">Save</button>' +
+            ' <a href="stade-form.html?id=' + s.id + '" class="link-edit">Fiche</a>' +
+            ' <a href="#" class="row-delete" data-nom="' + nom + '">Suppr.</a>' +
+          '</td>' +
+        '</tr>';
       }
+
+      function getPayloadFromRow(tr) {
+        var id = tr.dataset.id;
+        var nom = tr.querySelector('.row-nom').value.trim();
+        var capacite = Number(tr.querySelector('.row-capacite').value) || 0;
+        var ville = tr.querySelector('.row-ville').value.trim() || null;
+        var pays = tr.querySelector('.row-pays').value.trim() || null;
+        var descriptif = tr.querySelector('.row-descriptif').value.trim() || null;
+        var sports = Array.from(tr.querySelectorAll('.row-sport:checked')).map(function(c) { return c.value; });
+        var isSystem = tr.querySelector('.row-isSystem').checked;
+        return {
+          nom: nom,
+          capacite: capacite,
+          ville: ville,
+          pays: pays,
+          descriptif: descriptif,
+          sports: sports.length ? sports : null,
+          isSystem: isSystem,
+          images: null
+        };
+      }
+
+      async function uploadRowImages(stadeId, files) {
+        if (!files || !files.length) return [];
+        var storage = firebase.storage();
+        var refRoot = storage.ref().child('Stades').child(stadeId);
+        var urls = [];
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var ext = (file.name && file.name.indexOf('.') > -1) ? file.name.substring(file.name.lastIndexOf('.')) : '.jpg';
+          var ref = refRoot.child('image_' + i + ext);
+          await ref.put(file);
+          urls.push(await ref.getDownloadURL());
+        }
+        return urls;
+      }
+
+      async function saveRow(tr) {
+        var id = tr.dataset.id;
+        var saveBtn = tr.querySelector('.btn-row-save');
+        var fileInput = tr.querySelector('.row-image-files');
+        var payload = getPayloadFromRow(tr);
+        var existingImages = tr.dataset.images ? JSON.parse(tr.dataset.images) : [];
+        if (fileInput.files && fileInput.files.length > 0) {
+          saveBtn.textContent = 'Upload…';
+          var urls = await uploadRowImages(id, fileInput.files);
+          payload.images = existingImages.concat(urls);
+          fileInput.value = '';
+          tr.querySelector('.row-file-label').textContent = '—';
+        } else {
+          payload.images = existingImages.length ? existingImages : null;
+        }
+        var current = await dbStades.get(id);
+        var merged = {
+          nom: payload.nom,
+          capacite: payload.capacite,
+          descriptif: payload.descriptif,
+          images: payload.images,
+          ville: payload.ville,
+          pays: payload.pays,
+          club: current.club || null,
+          latitude: current.latitude,
+          longitude: current.longitude,
+          isSystem: payload.isSystem,
+          sports: payload.sports
+        };
+        await dbStades.set(id, merged);
+        saveBtn.textContent = 'Save';
+        tr.dataset.images = payload.images && payload.images.length ? JSON.stringify(payload.images) : '';
+        errEl.textContent = '';
+      }
+
+      (async function load() {
+        try {
+          await requireAuth();
+          var list = await dbStades.list();
+          loading.style.display = 'none';
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9">Aucun stade. <a href="stade-form.html">Créer un stade</a></td></tr>';
+          } else {
+            tbody.innerHTML = list.map(function(s) { return rowHtml(s); }).join('');
+            list.forEach(function(s, i) {
+              var tr = tbody.rows[i];
+              if (s.images && s.images.length) tr.dataset.images = JSON.stringify(s.images);
+            });
+            tbody.querySelectorAll('.btn-browse-row').forEach(function(btn) {
+              btn.addEventListener('click', function() { btn.closest('tr').querySelector('.row-image-files').click(); });
+            });
+            tbody.querySelectorAll('.row-image-files').forEach(function(input) {
+              input.addEventListener('change', function() {
+                var label = this.closest('tr').querySelector('.row-file-label');
+                var n = this.files.length;
+                label.textContent = n === 0 ? '—' : (n === 1 ? this.files[0].name : n + ' fichier(s)');
+              });
+            });
+            tbody.querySelectorAll('.btn-row-save').forEach(function(btn) {
+              btn.addEventListener('click', async function() {
+                var tr = this.closest('tr');
+                errEl.textContent = '';
+                try {
+                  await saveRow(tr);
+                } catch (err) {
+                  errEl.textContent = err.message;
+                }
+              });
+            });
+            tbody.querySelectorAll('.row-delete').forEach(function(a) {
+              a.addEventListener('click', async function(e) {
+                e.preventDefault();
+                if (!confirm('Supprimer « ' + this.dataset.nom + ' » ?')) return;
+                try {
+                  await dbStades.delete(this.closest('tr').dataset.id);
+                  this.closest('tr').remove();
+                } catch (err) {
+                  errEl.textContent = err.message;
+                }
+              });
+            });
+          }
+          tableWrap.style.display = 'block';
+        } catch (err) {
+          loading.style.display = 'none';
+          if (err.message !== 'Non authentifié') errEl.textContent = err.message;
+        }
+      })();
     })();
   </script>
 </body>

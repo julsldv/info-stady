@@ -75,3 +75,31 @@ a.delete { color: #c5221f; margin-left: 12px; }
   .stade-form-grid { grid-template-columns: 1fr 1fr; }
   .stade-form-grid .fg-club { grid-column: 1 / -1; }
 }
+
+/* ——— Liste stades éditable (stades.html) ——— */
+.stades-list-page .container { max-width: none; padding: 16px 20px; }
+.stades-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.stades-header h1 { margin: 0; font-size: 1.35rem; }
+.stades-header .btn { margin-left: auto; }
+.table-wrap { overflow-x: auto; background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.stades-editable-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.stades-editable-table th { text-align: left; padding: 10px 8px; background: #f8f9fa; font-weight: 600; color: #5f6368; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; border-bottom: 1px solid #eee; white-space: nowrap; }
+.stades-editable-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.stades-editable-table tr:hover td { background: #fafafa; }
+.stades-editable-table input[type="text"], .stades-editable-table input[type="number"] { width: 100%; min-width: 0; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
+.stades-editable-table input:focus { outline: none; border-color: #1a73e8; }
+.stades-editable-table .cell-image { white-space: nowrap; }
+.stades-editable-table .cell-image .btn-browse-row { margin-right: 6px; padding: 6px 10px; font-size: 12px; }
+.stades-editable-table .row-file-label { font-size: 12px; color: #5f6368; }
+.stades-editable-table .cell-sports { white-space: nowrap; }
+.stades-editable-table .cell-sports label { margin-right: 8px; font-weight: normal; font-size: 12px; cursor: pointer; }
+.stades-editable-table .chk-label { font-weight: normal; font-size: 12px; cursor: pointer; }
+.stades-editable-table .cell-actions { white-space: nowrap; }
+.stades-editable-table .btn-row-save { padding: 6px 12px; font-size: 12px; }
+.stades-editable-table .link-edit { font-size: 12px; color: #1a73e8; text-decoration: none; margin-left: 4px; }
+.stades-editable-table .link-edit:hover { text-decoration: underline; }
+.stades-editable-table .row-delete { font-size: 12px; color: #c5221f; margin-left: 6px; }
+.stades-editable-table .row-delete:hover { text-decoration: underline; }
+.stades-editable-table td input[type="number"] { max-width: 70px; }
+.stades-editable-table .row-descriptif { min-width: 120px; }
+.stades-editable-table .row-nom { min-width: 100px; }
