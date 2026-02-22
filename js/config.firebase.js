@@ -4,10 +4,10 @@
  * Projet stady-98226 → Paramètres (engrenage) → Vos applications → Application web (ou en créer une).
  */
 window.FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyCQuu6AshX4Kz3EJoAntNAzNxxzIkDEbpw",
   authDomain: "stady-98226.firebaseapp.com",
   projectId: "stady-98226",
   storageBucket: "stady-98226.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "1006357453956",
+  appId: "1:1006357453956:web:4fad228b047bbc80cc76d1"
 };
