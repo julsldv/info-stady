@@ -4,7 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Backoffice Stady</title>
+  <script>
+    (function() {
+      var p = location.pathname;
+      if (location.origin !== 'file://' && p.split('/').filter(Boolean).length > 1) {
+        var base = document.createElement('base');
+        base.href = location.origin + p.replace(/\/?[^/]*$/, '') + '/';
+        document.head.appendChild(base);
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css">
+  <style>#login-error a { color: #1a73e8; } #login-error code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }</style>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.min.js"></script>
@@ -52,7 +63,10 @@
       const logoutBtn = document.getElementById('logout');
 
       if (!window.firebaseAuth) {
-        loginError.textContent = 'Configure Firebase (js/config.firebase.js) avec ta config Web du projet stady-98226.';
+        loginError.innerHTML = 'Remplis <strong>js/config.firebase.js</strong> avec la config de ton application Web Firebase.<br>' +
+          '1. Ouvre <a href="https://console.firebase.google.com/project/stady-98226/settings/general" target="_blank" rel="noopener">Paramètres du projet stady-98226</a>.<br>' +
+          '2. Descends à « Vos applications » → clique sur l’app Web (</>) ou « Ajouter une application » → Web.<br>' +
+          '3. Copie l’objet <code>firebaseConfig</code> (apiKey, authDomain, projectId, etc.) dans <code>js/config.firebase.js</code> (remplace <code>window.FIREBASE_CONFIG = { ... }</code>).';
         loginBox.style.display = 'block';
         return;
       }
