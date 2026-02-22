@@ -30,6 +30,48 @@ a.delete { color: #c5221f; margin-left: 12px; }
 .sport-chks label { display: flex; align-items: center; font-weight: normal; }
 .filter { margin-bottom: 16px; }
 .filter select { padding: 8px 12px; border-radius: 6px; border: 1px solid #dadce0; }
+.image-upload { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.file-label { color: #5f6368; font-size: 14px; }
+.form-hint { margin: 8px 0 4px; font-size: 13px; color: #5f6368; }
 .login-box { max-width: 400px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .login-box h1 { margin-bottom: 16px; }
 .logout { margin-left: auto; color: #5f6368; font-size: 14px; }
+.dashboard-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.dashboard-header h1 { margin: 0; }
+
+/* ——— Page formulaire stade (sans scroll, UI compacte) ——— */
+.stade-form-page { margin: 0; padding: 0; min-height: 100vh; background: #e8eaed; display: flex; flex-direction: column; }
+.stade-form-wrap { flex: 1; display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; width: 100%; padding: 14px 20px; box-sizing: border-box; }
+.stade-form-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.stade-form-header .back-link { color: #1a73e8; text-decoration: none; font-size: 14px; }
+.stade-form-header .back-link:hover { text-decoration: underline; }
+.stade-form-header h1 { margin: 0; font-size: 1.35rem; font-weight: 600; color: #1a1a2e; }
+.stade-form-header .error { margin: 0; font-size: 13px; }
+.stade-form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px 20px; align-content: start; flex: 1; min-height: 0; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.stade-form-grid .form-group { margin: 0; }
+.stade-form-grid .form-group label { margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.02em; }
+.stade-form-grid input[type="text"], .stade-form-grid input[type="number"], .stade-form-grid textarea { padding: 8px 10px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; width: 100%; transition: border-color 0.15s; }
+.stade-form-grid input:focus, .stade-form-grid textarea:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.15); }
+.stade-form-grid textarea { min-height: auto; resize: none; }
+.stade-form-grid .fg-nom { grid-column: 1; }
+.stade-form-grid .fg-capacite { grid-column: 2; }
+.stade-form-grid .fg-ville { grid-column: 1; }
+.stade-form-grid .fg-pays { grid-column: 2; }
+.stade-form-grid .fg-club { grid-column: 3; }
+.stade-form-grid .fg-coords { grid-column: 1 / -1; }
+.stade-form-grid .fg-coords .input-row { display: flex; gap: 12px; }
+.stade-form-grid .fg-coords .input-row input { flex: 1; }
+.stade-form-grid .fg-descriptif { grid-column: 1 / -1; }
+.stade-form-grid .fg-descriptif textarea { rows: 2; }
+.stade-form-grid .fg-images { grid-column: 1 / -1; }
+.stade-form-grid .fg-images .image-upload { margin-bottom: 6px; }
+.stade-form-grid .fg-sports { grid-column: 1; }
+.stade-form-grid .fg-options { grid-column: 2; display: flex; align-items: flex-end; }
+.stade-form-grid .fg-options .checkbox-label { font-weight: normal; text-transform: none; font-size: 13px; color: #333; }
+.stade-form-grid .fg-actions { grid-column: 1 / -1; display: flex; gap: 10px; padding-top: 8px; border-top: 1px solid #eee; margin-top: 4px; }
+.stade-form-grid .sport-chks { display: flex; gap: 12px 20px; flex-wrap: wrap; }
+.stade-form-grid .sport-chks label { font-weight: normal; text-transform: none; font-size: 13px; color: #333; }
+@media (max-width: 768px) {
+  .stade-form-grid { grid-template-columns: 1fr 1fr; }
+  .stade-form-grid .fg-club { grid-column: 1 / -1; }
+}
