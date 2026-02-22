@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stades – Backoffice Stady</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.min.js"></script>
+  <script src="js/config.firebase.js"></script>
+  <script>if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') firebase.initializeApp(window.FIREBASE_CONFIG);</script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <p><a href="index.html">← Accueil</a></p>
+    <h1>Stades</h1>
+    <p><a href="stade-form.html" class="btn btn-primary">Nouveau stade</a></p>
+    <p id="error" class="error"></p>
+    <p id="loading" class="loading">Chargement…</p>
+    <table id="table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Ville</th>
+          <th>Pays</th>
+          <th>Capacité</th>
+          <th>Sports</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    (async function() {
+      const tbody = document.querySelector('#table tbody');
+      const loading = document.getElementById('loading');
+      const errEl = document.getElementById('error');
+      const table = document.getElementById('table');
+      try {
+        await requireAuth();
+        const list = await dbStades.list();
+        loading.style.display = 'none';
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">Aucun stade.</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(s => {
+            const sports = (s.sports && s.sports.length) ? s.sports.join(', ') : '—';
+            return `<tr>
+              <td>${escapeHtml(s.nom || '')}</td>
+              <td>${escapeHtml(s.ville || '—')}</td>
+              <td>${escapeHtml(s.pays || '—')}</td>
+              <td>${s.capacite ?? '—'}</td>
+              <td>${escapeHtml(sports)}</td>
+              <td>
+                <a href="stade-form.html?id=${s.id}" class="edit">Modifier</a>
+                <a href="#" class="delete" data-id="${s.id}" data-nom="${escapeHtml(s.nom || '')}">Supprimer</a>
+              </td>
+            </tr>`;
+          }).join('');
+        }
+        table.style.display = 'table';
+        tbody.closest('table').querySelectorAll('a.delete').forEach(a => {
+          a.addEventListener('click', async e => {
+            e.preventDefault();
+            if (!confirm('Supprimer le stade « ' + a.dataset.nom + ' » ?')) return;
+            try {
+              await dbStades.delete(a.dataset.id);
+              a.closest('tr').remove();
+            } catch (err) {
+              errEl.textContent = err.message;
+            }
+          });
+        });
+      } catch (err) {
+        loading.style.display = 'none';
+        if (err.message !== 'Non authentifié') errEl.textContent = err.message;
+      }
+    })();
+  </script>
+</body>
+</html>

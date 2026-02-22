@@ -1,0 +1,14 @@
+À intégrer dans ton fichier firestore.rules du projet Firebase (stady-98226) si ce n’est pas déjà fait.
+Le projet Stady a été mis à jour avec ces règles ; ce fichier sert de rappel pour un déploiement manuel.
+
+1) Collection Stades (ajouter dans match /databases/.../documents { ... }) :
+    match /Stades/{stadeId} {
+      allow read, write: if request.auth != null;
+    }
+
+2) Collection Contestants : autoriser aussi update et delete (pas seulement create) :
+    match /Contestants/{contestantId} {
+      allow read, write: if request.auth != null;
+    }
+
+Puis déployer : firebase deploy --only firestore:rules

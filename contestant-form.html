@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contestant – Backoffice Stady</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.min.js"></script>
+  <script src="js/config.firebase.js"></script>
+  <script>if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') firebase.initializeApp(window.FIREBASE_CONFIG);</script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <p><a href="contestants.html">← Liste des contestants</a></p>
+    <h1 id="title">Nouveau contestant</h1>
+    <p id="error" class="error"></p>
+    <form id="form">
+      <div class="form-group">
+        <label>Name *</label>
+        <input type="text" name="Name" required>
+      </div>
+      <div class="form-group">
+        <label>Sport</label>
+        <select name="Sport">
+          <option value="football">Football</option>
+          <option value="rugby">Rugby</option>
+          <option value="tennis">Tennis</option>
+          <option value="basket">Basket</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="contestants.html" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const form = document.getElementById('form');
+    const title = document.getElementById('title');
+    const errEl = document.getElementById('error');
+
+    (async function init() {
+      try {
+        await requireAuth();
+        if (id) {
+          title.textContent = 'Modifier le contestant';
+          const c = await dbContestants.get(id);
+          form.Name.value = c.Name || '';
+          form.Sport.value = c.Sport || 'football';
+        }
+      } catch (err) {
+        if (err.message !== 'Non authentifié') errEl.textContent = err.message;
+      }
+    })();
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errEl.textContent = '';
+      const payload = { Name: form.Name.value.trim(), Sport: form.Sport.value };
+      try {
+        await requireAuth();
+        if (id) {
+          await dbContestants.set(id, payload);
+          alert('Contestant mis à jour.');
+        } else {
+          await dbContestants.add(payload);
+          alert('Contestant créé.');
+        }
+        location.href = 'contestants.html';
+      } catch (err) {
+        errEl.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

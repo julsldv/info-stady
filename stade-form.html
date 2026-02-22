@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stade – Backoffice Stady</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.min.js"></script>
+  <script src="js/config.firebase.js"></script>
+  <script>if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') firebase.initializeApp(window.FIREBASE_CONFIG);</script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <p><a href="stades.html">← Liste des stades</a></p>
+    <h1 id="title">Nouveau stade</h1>
+    <p id="error" class="error"></p>
+    <form id="form">
+      <div class="form-group">
+        <label>Nom *</label>
+        <input type="text" name="nom" required>
+      </div>
+      <div class="form-group">
+        <label>Capacité *</label>
+        <input type="number" name="capacite" min="0" required>
+      </div>
+      <div class="form-group">
+        <label>Descriptif</label>
+        <textarea name="descriptif"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Images (une URL par ligne ou séparées par des virgules)</label>
+        <textarea name="images" placeholder="https://..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Latitude</label>
+        <input type="number" name="latitude" step="any" placeholder="ex. 48.84">
+      </div>
+      <div class="form-group">
+        <label>Longitude</label>
+        <input type="number" name="longitude" step="any" placeholder="ex. 2.35">
+      </div>
+      <div class="form-group">
+        <label>Ville</label>
+        <input type="text" name="ville">
+      </div>
+      <div class="form-group">
+        <label>Pays</label>
+        <input type="text" name="pays">
+      </div>
+      <div class="form-group">
+        <label>Club</label>
+        <input type="text" name="club">
+      </div>
+      <div class="form-group">
+        <label><input type="checkbox" name="isSystem"> isSystem (catalogue)</label>
+      </div>
+      <div class="form-group">
+        <label>Sports</label>
+        <div class="sport-chks">
+          <label><input type="checkbox" name="sport" value="football"> Football</label>
+          <label><input type="checkbox" name="sport" value="rugby"> Rugby</label>
+          <label><input type="checkbox" name="sport" value="tennis"> Tennis</label>
+          <label><input type="checkbox" name="sport" value="basket"> Basket</label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <a href="stades.html" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const form = document.getElementById('form');
+    const title = document.getElementById('title');
+    const errEl = document.getElementById('error');
+
+    (async function init() {
+      try {
+        await requireAuth();
+        if (id) {
+          title.textContent = 'Modifier le stade';
+          const s = await dbStades.get(id);
+          form.nom.value = s.nom || '';
+          form.capacite.value = s.capacite ?? '';
+          form.descriptif.value = s.descriptif || '';
+          form.images.value = (s.images && s.images.length) ? s.images.join('\n') : '';
+          form.latitude.value = s.latitude ?? '';
+          form.longitude.value = s.longitude ?? '';
+          form.ville.value = s.ville || '';
+          form.pays.value = s.pays || '';
+          form.club.value = s.club || '';
+          form.isSystem.checked = s.isSystem === true;
+          (s.sports || []).forEach(sport => {
+            const cb = form.querySelector('input[name="sport"][value="' + sport + '"]');
+            if (cb) cb.checked = true;
+          });
+        }
+      } catch (err) {
+        if (err.message !== 'Non authentifié') errEl.textContent = err.message;
+      }
+    })();
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errEl.textContent = '';
+      const imagesText = form.images.value.trim();
+      const images = imagesText ? imagesText.split(/[\n,]/).map(s => s.trim()).filter(Boolean) : [];
+      const sports = Array.from(form.querySelectorAll('input[name="sport"]:checked')).map(c => c.value);
+      const payload = {
+        nom: form.nom.value.trim(),
+        capacite: Number(form.capacite.value) || 0,
+        descriptif: form.descriptif.value.trim(),
+        images: images.length ? images : null,
+        latitude: form.latitude.value.trim() ? Number(form.latitude.value) : null,
+        longitude: form.longitude.value.trim() ? Number(form.longitude.value) : null,
+        ville: form.ville.value.trim() || null,
+        pays: form.pays.value.trim() || null,
+        club: form.club.value.trim() || null,
+        isSystem: form.isSystem.checked,
+        sports: sports.length ? sports : null,
+      };
+      try {
+        await requireAuth();
+        if (id) {
+          await dbStades.set(id, payload);
+          alert('Stade mis à jour.');
+        } else {
+          await dbStades.add(payload);
+          alert('Stade créé.');
+        }
+        location.href = 'stades.html';
+      } catch (err) {
+        errEl.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
