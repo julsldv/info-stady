@@ -87,7 +87,7 @@
           '<td class="cell-actions">' +
             '<button type="button" class="btn btn-primary btn-row-save">Save</button>' +
             ' <a href="stade-form.html?id=' + s.id + '" class="link-edit">Fiche</a>' +
-            ' <a href="#" class="row-delete" data-nom="' + nom + '">Suppr.</a>' +
+            ' <button type="button" class="btn btn-danger btn-row-delete" data-nom="' + nom + '">Supprimer</button>' +
           '</td>' +
         '</tr>';
       }
@@ -190,10 +190,10 @@
                 }
               });
             });
-            tbody.querySelectorAll('.row-delete').forEach(function(a) {
-              a.addEventListener('click', async function(e) {
+            tbody.querySelectorAll('.btn-row-delete').forEach(function(btn) {
+              btn.addEventListener('click', async function(e) {
                 e.preventDefault();
-                if (!confirm('Supprimer « ' + this.dataset.nom + ' » ?')) return;
+                if (!confirm('Supprimer le stade « ' + this.dataset.nom + ' » ?')) return;
                 try {
                   await dbStades.delete(this.closest('tr').dataset.id);
                   this.closest('tr').remove();

@@ -77,28 +77,30 @@ a.delete { color: #c5221f; margin-left: 12px; }
 }
 
 /* ——— Liste stades éditable (stades.html) ——— */
-.stades-list-page .container { width: 90%; max-width: 90vw; margin-left: auto; margin-right: auto; padding: 16px 20px; box-sizing: border-box; }
+/* Même élément a .container.stades-list-page : il faut surcharger .container ici */
+.stades-list-page { overflow-x: auto; }
+.container.stades-list-page { width: 100%; max-width: none; margin: 0; padding: 12px 16px; box-sizing: border-box; }
 .stades-list-page .table-wrap { width: 100%; overflow-x: auto; }
 .stades-header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
 .stades-header h1 { margin: 0; font-size: 1.35rem; }
 .stades-header .btn { margin-left: auto; }
 .table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.stades-editable-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-/* Largeurs de colonnes pour afficher tout le contenu (réparties sur 100 %) */
-.stades-editable-table th:nth-child(1), .stades-editable-table td:nth-child(1) { width: 14%; }   /* Nom */
-.stades-editable-table th:nth-child(2), .stades-editable-table td:nth-child(2) { width: 10%; }   /* Ville */
-.stades-editable-table th:nth-child(3), .stades-editable-table td:nth-child(3) { width: 8%; }    /* Pays */
-.stades-editable-table th:nth-child(4), .stades-editable-table td:nth-child(4) { width: 5%; }    /* Cap. */
-.stades-editable-table th:nth-child(5), .stades-editable-table td:nth-child(5) { width: 10%; }   /* Club */
-.stades-editable-table th:nth-child(6), .stades-editable-table td:nth-child(6) { width: 6%; }    /* Lat */
-.stades-editable-table th:nth-child(7), .stades-editable-table td:nth-child(7) { width: 6%; }    /* Long */
-.stades-editable-table th:nth-child(8), .stades-editable-table td:nth-child(8) { width: 11%; }   /* Image */
-.stades-editable-table th:nth-child(9), .stades-editable-table td:nth-child(9) { width: 14%; }   /* Descriptif */
-.stades-editable-table th:nth-child(10), .stades-editable-table td:nth-child(10) { width: 10%; } /* Sports */
-.stades-editable-table th:nth-child(11), .stades-editable-table td:nth-child(11) { width: 6%; }  /* isSystem */
-.stades-editable-table th:nth-child(12), .stades-editable-table td:nth-child(12) { width: 6%; }  /* Actions */
-.stades-editable-table th { text-align: left; padding: 10px 8px; background: #f8f9fa; font-weight: 600; color: #5f6368; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; }
-.stades-editable-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; overflow: visible; }
+.stades-editable-table { width: 100%; min-width: 1800px; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
+/* Largeurs min en px pour afficher tout le contenu ; la table occupe toute la largeur */
+.stades-editable-table th:nth-child(1), .stades-editable-table td:nth-child(1) { width: 15%; min-width: 200px; }   /* Nom */
+.stades-editable-table th:nth-child(2), .stades-editable-table td:nth-child(2) { width: 10%; min-width: 130px; }   /* Ville */
+.stades-editable-table th:nth-child(3), .stades-editable-table td:nth-child(3) { width: 9%; min-width: 110px; }   /* Pays */
+.stades-editable-table th:nth-child(4), .stades-editable-table td:nth-child(4) { width: 5%; min-width: 70px; }    /* Cap. */
+.stades-editable-table th:nth-child(5), .stades-editable-table td:nth-child(5) { width: 11%; min-width: 140px; }   /* Club */
+.stades-editable-table th:nth-child(6), .stades-editable-table td:nth-child(6) { width: 6%; min-width: 95px; }    /* Lat */
+.stades-editable-table th:nth-child(7), .stades-editable-table td:nth-child(7) { width: 6%; min-width: 95px; }    /* Long */
+.stades-editable-table th:nth-child(8), .stades-editable-table td:nth-child(8) { width: 10%; min-width: 130px; }   /* Image */
+.stades-editable-table th:nth-child(9), .stades-editable-table td:nth-child(9) { width: 16%; min-width: 220px; }   /* Descriptif */
+.stades-editable-table th:nth-child(10), .stades-editable-table td:nth-child(10) { width: 10%; min-width: 130px; } /* Sports */
+.stades-editable-table th:nth-child(11), .stades-editable-table td:nth-child(11) { width: 5%; min-width: 70px; }  /* isSystem */
+.stades-editable-table th:nth-child(12), .stades-editable-table td:nth-child(12) { width: 7%; min-width: 180px; }  /* Actions */
+.stades-editable-table th { text-align: left; padding: 10px 8px; background: #f8f9fa; font-weight: 600; color: #5f6368; font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; border-bottom: 1px solid #eee; }
+.stades-editable-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
 .stades-editable-table tr:hover td { background: #fafafa; }
 .stades-editable-table input[type="text"], .stades-editable-table input[type="number"] { width: 100%; min-width: 0; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
 .stades-editable-table input:focus { outline: none; border-color: #1a73e8; }
@@ -112,6 +114,5 @@ a.delete { color: #c5221f; margin-left: 12px; }
 .stades-editable-table .btn-row-save { padding: 6px 12px; font-size: 12px; }
 .stades-editable-table .link-edit { font-size: 12px; color: #1a73e8; text-decoration: none; margin-left: 4px; }
 .stades-editable-table .link-edit:hover { text-decoration: underline; }
-.stades-editable-table .row-delete { font-size: 12px; color: #c5221f; margin-left: 6px; }
-.stades-editable-table .row-delete:hover { text-decoration: underline; }
+.stades-editable-table .btn-row-delete { padding: 6px 12px; font-size: 12px; margin-left: 6px; }
 .stades-editable-table .row-descriptif { min-width: 0; }
