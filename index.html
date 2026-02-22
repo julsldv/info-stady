@@ -36,7 +36,7 @@
   <script src="js/auth.js"></script>
 </head>
 <body>
-  <div id="login-box" class="login-box" style="display: none;">
+  <div id="login-box" class="login-box">
     <h1>Backoffice Stady</h1>
     <p>Connexion avec ton compte admin (Firebase Auth). <a href="config-check.html">Vérifier la config</a></p>
     <p id="login-error" class="error"></p>
@@ -70,32 +70,41 @@
       const loginError = document.getElementById('login-error');
       const logoutBtn = document.getElementById('logout');
 
-      if (!window.firebaseAuth) {
-        loginError.innerHTML = 'Remplis <strong>js/config.firebase.js</strong> avec la config de ton application Web Firebase.<br>' +
-          '1. Ouvre <a href="https://console.firebase.google.com/project/stady-98226/settings/general" target="_blank" rel="noopener">Paramètres du projet stady-98226</a>.<br>' +
-          '2. Descends à « Vos applications » → clique sur l’app Web (</>) ou « Ajouter une application » → Web.<br>' +
-          '3. Copie l’objet <code>firebaseConfig</code> (apiKey, authDomain, projectId, etc.) dans <code>js/config.firebase.js</code> (remplace <code>window.FIREBASE_CONFIG = { ... }</code>).';
-        loginBox.style.display = 'block';
-        return;
+      function ensureAuth() {
+        if (window.firebaseAuth) return window.firebaseAuth;
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+          window.firebaseAuth = firebase.auth();
+          return window.firebaseAuth;
+        }
+        return null;
       }
 
-      window.firebaseAuth.onAuthStateChanged(function(user) {
-        if (user) {
-          loginBox.style.display = 'none';
-          dashboard.style.display = 'block';
-        } else {
-          loginBox.style.display = 'block';
-          dashboard.style.display = 'none';
-        }
-      });
+      if (window.firebaseAuth) {
+        window.firebaseAuth.onAuthStateChanged(function(user) {
+          if (user) {
+            loginBox.style.display = 'none';
+            dashboard.style.display = 'block';
+          } else {
+            loginBox.style.display = 'block';
+            dashboard.style.display = 'none';
+          }
+        });
+      } else {
+        loginBox.style.display = 'block';
+      }
 
       loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         loginError.textContent = '';
-        const email = loginForm.email.value.trim();
-        const password = loginForm.password.value;
+        var auth = ensureAuth();
+        if (!auth) {
+          loginError.innerHTML = 'Firebase n’a pas pu se charger. <a href="config-check.html">Vérifier la config</a> ou réessaie en rechargeant la page.';
+          return;
+        }
+        var email = loginForm.email.value.trim();
+        var password = loginForm.password.value;
         try {
-          await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+          await auth.signInWithEmailAndPassword(email, password);
         } catch (err) {
           loginError.textContent = err.message || 'Erreur de connexion';
         }
@@ -103,7 +112,7 @@
 
       logoutBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.firebaseAuth.signOut();
+        if (window.firebaseAuth) window.firebaseAuth.signOut();
       });
     })();
   </script>
