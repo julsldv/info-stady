@@ -83,12 +83,20 @@
         return null;
       }
 
-      var adminEmail = (typeof window.ADMIN_EMAIL !== 'undefined') ? window.ADMIN_EMAIL : 'admin@stady.com';
+      var adminEmails = (typeof window.ADMIN_EMAILS !== 'undefined') ? window.ADMIN_EMAILS : ['admin@stady.com'];
+      function isAdmin(email) {
+        return adminEmails.indexOf((email || '').toLowerCase()) !== -1;
+      }
+      function adminMessage() {
+        return adminEmails.length === 1
+          ? 'Seul le compte ' + adminEmails[0] + ' peut accéder au backoffice.'
+          : 'Accès réservé aux comptes administrateurs.';
+      }
       if (window.firebaseAuth) {
         window.firebaseAuth.onAuthStateChanged(function(user) {
           if (user) {
-            if ((user.email || '').toLowerCase() !== adminEmail) {
-              loginError.textContent = 'Accès réservé. Seul le compte ' + adminEmail + ' peut accéder au backoffice.';
+            if (!isAdmin(user.email)) {
+              loginError.textContent = 'Accès réservé. ' + adminMessage();
               loginBox.style.display = 'block';
               dashboard.style.display = 'none';
               window.firebaseAuth.signOut();
@@ -100,7 +108,7 @@
           } else {
             var params = new URLSearchParams(window.location.search);
             if (params.get('error') === 'access_denied') {
-              loginError.textContent = 'Accès refusé. Seul le compte ' + adminEmail + ' peut accéder au backoffice.';
+              loginError.textContent = 'Accès refusé. ' + adminMessage();
             }
             loginBox.style.display = 'block';
             dashboard.style.display = 'none';
