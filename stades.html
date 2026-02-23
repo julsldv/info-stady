@@ -145,7 +145,8 @@
         var desc = escapeHtml(s.descriptif || '');
         var lat = s.latitude != null && s.latitude !== '' ? String(s.latitude) : '';
         var long = s.longitude != null && s.longitude !== '' ? String(s.longitude) : '';
-        return '<tr data-id="' + s.id + '">' +
+        var safeId = String(s.id).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        return '<tr data-id="' + safeId + '">' +
           '<td><input type="text" class="row-nom" value="' + nom + '" placeholder="Nom"></td>' +
           '<td><input type="text" class="row-ville" value="' + ville + '" placeholder="Ville"></td>' +
           '<td><input type="text" class="row-pays" value="' + pays + '" placeholder="Pays"></td>' +
@@ -218,24 +219,47 @@
       }
 
       async function saveRow(tr) {
-        var id = tr.dataset.id;
+        var id = tr.getAttribute('data-id');
+        if (!id) {
+          errEl.textContent = 'Erreur: identifiant du stade manquant.';
+          return;
+        }
+        if (!window.dbStades) {
+          errEl.textContent = 'Erreur: base de données non chargée. Rechargez la page.';
+          return;
+        }
         var saveBtn = tr.querySelector('.btn-row-save');
         var fileInput = tr.querySelector('.row-image-files');
         var payload = getPayloadFromRow(tr);
-        var existingImages = tr.dataset.images ? JSON.parse(tr.dataset.images) : [];
+        var existingImages = [];
+        try {
+          if (tr.dataset.images) existingImages = JSON.parse(tr.dataset.images);
+        } catch (e) {}
         if (fileInput.files && fileInput.files.length > 0) {
           saveBtn.textContent = 'Upload…';
-          var urls = await uploadRowImages(id, fileInput.files);
-          payload.images = existingImages.concat(urls);
+          try {
+            var urls = await uploadRowImages(id, fileInput.files);
+            payload.images = existingImages.concat(urls);
+          } catch (err) {
+            saveBtn.textContent = 'Save';
+            errEl.textContent = 'Upload images: ' + (err.message || err);
+            return;
+          }
           fileInput.value = '';
           tr.querySelector('.row-file-label').textContent = '—';
         } else {
           payload.images = existingImages.length ? existingImages : null;
         }
-        await dbStades.set(id, payload);
-        saveBtn.textContent = 'Save';
-        tr.dataset.images = payload.images && payload.images.length ? JSON.stringify(payload.images) : '';
-        errEl.textContent = '';
+        try {
+          await dbStades.set(id, payload);
+          tr.dataset.images = payload.images && payload.images.length ? JSON.stringify(payload.images) : '';
+          errEl.textContent = '';
+        } catch (err) {
+          errEl.textContent = err.message || 'Erreur lors de la sauvegarde.';
+          throw err;
+        } finally {
+          saveBtn.textContent = 'Save';
+        }
       }
 
       (async function load() {
