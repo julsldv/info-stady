@@ -20,9 +20,23 @@
   <div class="container stades-list-page">
     <header class="stades-header">
       <a href="index.html">← Accueil</a>
-      <h1>Stades</h1>
+      <h1>Stades <span id="stadesCount"></span></h1>
       <a href="stade-form.html" class="btn btn-primary">Nouveau stade</a>
     </header>
+    <div class="filter" style="margin-bottom:1rem;">
+      <label>Pays : </label>
+      <select id="filterPays">
+        <option value="">Tous</option>
+      </select>
+      <label style="margin-left:1rem;">Sport : </label>
+      <select id="filterSport">
+        <option value="">Tous</option>
+        <option value="football">Football</option>
+        <option value="rugby">Rugby</option>
+        <option value="tennis">Tennis</option>
+        <option value="basket">Basket</option>
+      </select>
+    </div>
     <p id="error" class="error"></p>
     <p id="loading" class="loading">Chargement…</p>
     <div class="table-wrap" id="tableWrap" style="display:none;">
@@ -53,6 +67,74 @@
       var loading = document.getElementById('loading');
       var errEl = document.getElementById('error');
       var tableWrap = document.getElementById('tableWrap');
+      var filterPays = document.getElementById('filterPays');
+      var filterSport = document.getElementById('filterSport');
+      var stadesCountEl = document.getElementById('stadesCount');
+      var allList = [];
+
+      function applyFilters() {
+        var pays = (filterPays.value || '').trim();
+        var sport = (filterSport.value || '').trim();
+        var list = allList.filter(function(s) {
+          if (pays && (s.pays || '').trim() !== pays) return false;
+          if (sport) {
+            var sports = s.sports || [];
+            if (sports.indexOf(sport) === -1) return false;
+          }
+          return true;
+        });
+        list.sort(function(a, b) {
+          var va = (a.ville || '').toLowerCase();
+          var vb = (b.ville || '').toLowerCase();
+          return va.localeCompare(vb);
+        });
+        return list;
+      }
+
+      function bindRowEvents(tr, s) {
+        tr.querySelector('.btn-browse-row').addEventListener('click', function() {
+          tr.querySelector('.row-image-files').click();
+        });
+        tr.querySelector('.row-image-files').addEventListener('change', function() {
+          var label = tr.querySelector('.row-file-label');
+          var n = this.files.length;
+          label.textContent = n === 0 ? '—' : (n === 1 ? this.files[0].name : n + ' fichier(s)');
+        });
+        tr.querySelector('.btn-row-save').addEventListener('click', async function() {
+          errEl.textContent = '';
+          try {
+            await saveRow(tr);
+          } catch (err) {
+            errEl.textContent = err.message;
+          }
+        });
+        tr.querySelector('.btn-row-delete').addEventListener('click', async function(e) {
+          e.preventDefault();
+          if (!confirm('Supprimer le stade « ' + (s.nom || '') + ' » ?')) return;
+          try {
+            await dbStades.delete(tr.dataset.id);
+            allList = allList.filter(function(x) { return x.id !== tr.dataset.id; });
+            tr.remove();
+            stadesCountEl.textContent = '(' + applyFilters().length + ' / ' + allList.length + ')';
+          } catch (err) {
+            errEl.textContent = err.message;
+          }
+        });
+      }
+
+      function render(list) {
+        stadesCountEl.textContent = '(' + list.length + ' / ' + allList.length + ')';
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="12">Aucun stade pour ces critères. <a href="stade-form.html">Créer un stade</a></td></tr>';
+        } else {
+          tbody.innerHTML = list.map(function(s) { return rowHtml(s); }).join('');
+          list.forEach(function(s, i) {
+            var tr = tbody.rows[i];
+            if (s.images && s.images.length) tr.dataset.images = JSON.stringify(s.images);
+            bindRowEvents(tr, s);
+          });
+        }
+      }
 
       function rowHtml(s) {
         var sports = (s.sports || []).slice();
@@ -159,50 +241,23 @@
       (async function load() {
         try {
           await requireAuth();
-          var list = await dbStades.list();
+          allList = await dbStades.list();
           loading.style.display = 'none';
-          if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="12">Aucun stade. <a href="stade-form.html">Créer un stade</a></td></tr>';
-          } else {
-            tbody.innerHTML = list.map(function(s) { return rowHtml(s); }).join('');
-            list.forEach(function(s, i) {
-              var tr = tbody.rows[i];
-              if (s.images && s.images.length) tr.dataset.images = JSON.stringify(s.images);
-            });
-            tbody.querySelectorAll('.btn-browse-row').forEach(function(btn) {
-              btn.addEventListener('click', function() { btn.closest('tr').querySelector('.row-image-files').click(); });
-            });
-            tbody.querySelectorAll('.row-image-files').forEach(function(input) {
-              input.addEventListener('change', function() {
-                var label = this.closest('tr').querySelector('.row-file-label');
-                var n = this.files.length;
-                label.textContent = n === 0 ? '—' : (n === 1 ? this.files[0].name : n + ' fichier(s)');
-              });
-            });
-            tbody.querySelectorAll('.btn-row-save').forEach(function(btn) {
-              btn.addEventListener('click', async function() {
-                var tr = this.closest('tr');
-                errEl.textContent = '';
-                try {
-                  await saveRow(tr);
-                } catch (err) {
-                  errEl.textContent = err.message;
-                }
-              });
-            });
-            tbody.querySelectorAll('.btn-row-delete').forEach(function(btn) {
-              btn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                if (!confirm('Supprimer le stade « ' + this.dataset.nom + ' » ?')) return;
-                try {
-                  await dbStades.delete(this.closest('tr').dataset.id);
-                  this.closest('tr').remove();
-                } catch (err) {
-                  errEl.textContent = err.message;
-                }
-              });
-            });
-          }
+          var paysList = [];
+          allList.forEach(function(s) {
+            var p = (s.pays || '').trim();
+            if (p && paysList.indexOf(p) === -1) paysList.push(p);
+          });
+          paysList.sort();
+          paysList.forEach(function(p) {
+            var opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            filterPays.appendChild(opt);
+          });
+          filterPays.addEventListener('change', function() { render(applyFilters()); });
+          filterSport.addEventListener('change', function() { render(applyFilters()); });
+          render(applyFilters());
           tableWrap.style.display = 'block';
         } catch (err) {
           loading.style.display = 'none';

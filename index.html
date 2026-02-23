@@ -79,7 +79,7 @@
         window.firebaseAuth.onAuthStateChanged(function(user) {
           if (user) {
             if ((user.email || '').toLowerCase() !== ADMIN_EMAIL) {
-              loginError.textContent = 'Seul le compte ' + ADMIN_EMAIL + ' peut accéder au backoffice.';
+              loginError.textContent = 'Accès réservé.';
               loginBox.style.display = 'block';
               dashboard.style.display = 'none';
               window.firebaseAuth.signOut();
