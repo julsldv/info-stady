@@ -6,6 +6,7 @@
   <title>Stades – Backoffice Stady</title>
   <script>(function(){var p=location.pathname;if(p&&p!=='/'&&location.origin!=='file://'){var b=document.createElement('base');b.href=location.origin+p.replace(/\/?[^/]*$/,'')+'/';document.head.appendChild(b);}})();</script>
   <link rel="stylesheet" href="css/style.css">
+  <style>.sortable { cursor: pointer; user-select: none; } .sortable:hover { background: #f0f0f0; }</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-app-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-auth-compat.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-firestore-compat.min.js"></script>
@@ -43,11 +44,11 @@
       <table id="table" class="stades-editable-table">
         <thead>
           <tr>
-            <th>Nom</th>
-            <th>Ville</th>
-            <th>Pays</th>
-            <th>Cap.</th>
-            <th>Club</th>
+            <th class="sortable" data-sort="nom" title="Cliquer pour trier">Nom <span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort="ville" title="Cliquer pour trier">Ville <span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort="pays" title="Cliquer pour trier">Pays <span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort="capacite" title="Cliquer pour trier">Cap. <span class="sort-indicator"></span></th>
+            <th class="sortable" data-sort="club" title="Cliquer pour trier">Club <span class="sort-indicator"></span></th>
             <th>Lat</th>
             <th>Long</th>
             <th>Image</th>
@@ -71,6 +72,32 @@
       var filterSport = document.getElementById('filterSport');
       var stadesCountEl = document.getElementById('stadesCount');
       var allList = [];
+      var sortBy = 'ville';
+      var sortDir = 1;
+
+      function applySort(list) {
+        var key = sortBy;
+        var dir = sortDir;
+        return list.slice().sort(function(a, b) {
+          var va, vb;
+          if (key === 'capacite') {
+            va = Number(a.capacite) || 0;
+            vb = Number(b.capacite) || 0;
+            return dir * (va - vb);
+          }
+          va = (a[key] || '').toString().toLowerCase();
+          vb = (b[key] || '').toString().toLowerCase();
+          return dir * va.localeCompare(vb);
+        });
+      }
+
+      function updateSortIndicators() {
+        var ths = document.querySelectorAll('.sortable');
+        ths.forEach(function(th) {
+          var ind = th.querySelector('.sort-indicator');
+          ind.textContent = th.dataset.sort === sortBy ? (sortDir === 1 ? ' ↑' : ' ↓') : '';
+        });
+      }
 
       function applyFilters() {
         var pays = (filterPays.value || '').trim();
@@ -83,12 +110,7 @@
           }
           return true;
         });
-        list.sort(function(a, b) {
-          var va = (a.ville || '').toLowerCase();
-          var vb = (b.ville || '').toLowerCase();
-          return va.localeCompare(vb);
-        });
-        return list;
+        return applySort(list);
       }
 
       function bindRowEvents(tr, s) {
@@ -124,6 +146,7 @@
 
       function render(list) {
         stadesCountEl.textContent = '(' + list.length + ' / ' + allList.length + ')';
+        updateSortIndicators();
         if (list.length === 0) {
           tbody.innerHTML = '<tr><td colspan="12">Aucun stade pour ces critères. <a href="stade-form.html">Créer un stade</a></td></tr>';
         } else {
@@ -281,6 +304,13 @@
           });
           filterPays.addEventListener('change', function() { render(applyFilters()); });
           filterSport.addEventListener('change', function() { render(applyFilters()); });
+          document.querySelectorAll('.sortable').forEach(function(th) {
+            th.addEventListener('click', function() {
+              var col = this.dataset.sort;
+              if (sortBy === col) sortDir = -sortDir; else { sortBy = col; sortDir = 1; }
+              render(applyFilters());
+            });
+          });
           render(applyFilters());
           tableWrap.style.display = 'block';
         } catch (err) {
