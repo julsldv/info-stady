@@ -74,29 +74,12 @@
       const loginError = document.getElementById('login-error');
       const logoutBtn = document.getElementById('logout');
 
-      function ensureAuth() {
-        if (window.firebaseAuth) return window.firebaseAuth;
-        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-          window.firebaseAuth = firebase.auth();
-          return window.firebaseAuth;
-        }
-        return null;
-      }
-
-      var adminEmails = (typeof window.ADMIN_EMAILS !== 'undefined') ? window.ADMIN_EMAILS : ['admin@stady.com'];
-      function isAdmin(email) {
-        return adminEmails.indexOf((email || '').toLowerCase()) !== -1;
-      }
-      function adminMessage() {
-        return adminEmails.length === 1
-          ? 'Seul le compte ' + adminEmails[0] + ' peut accéder au backoffice.'
-          : 'Accès réservé aux comptes administrateurs.';
-      }
+      var ADMIN_EMAIL = 'admin@stady.com';
       if (window.firebaseAuth) {
         window.firebaseAuth.onAuthStateChanged(function(user) {
           if (user) {
-            if (!isAdmin(user.email)) {
-              loginError.textContent = 'Accès réservé. ' + adminMessage();
+            if ((user.email || '').toLowerCase() !== ADMIN_EMAIL) {
+              loginError.textContent = 'Seul le compte ' + ADMIN_EMAIL + ' peut accéder au backoffice.';
               loginBox.style.display = 'block';
               dashboard.style.display = 'none';
               window.firebaseAuth.signOut();
@@ -106,10 +89,6 @@
             loginBox.style.display = 'none';
             dashboard.style.display = 'block';
           } else {
-            var params = new URLSearchParams(window.location.search);
-            if (params.get('error') === 'access_denied') {
-              loginError.textContent = 'Accès refusé. ' + adminMessage();
-            }
             loginBox.style.display = 'block';
             dashboard.style.display = 'none';
           }
@@ -121,15 +100,14 @@
       loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         loginError.textContent = '';
-        var auth = ensureAuth();
-        if (!auth) {
+        if (!window.firebaseAuth) {
           loginError.innerHTML = 'Firebase n’a pas pu se charger. <a href="config-check.html">Vérifier la config</a> ou réessaie en rechargeant la page.';
           return;
         }
         var email = loginForm.email.value.trim();
         var password = loginForm.password.value;
         try {
-          await auth.signInWithEmailAndPassword(email, password);
+          await window.firebaseAuth.signInWithEmailAndPassword(email, password);
         } catch (err) {
           loginError.textContent = err.message || 'Erreur de connexion';
         }

@@ -91,7 +91,7 @@
 
     (async function init() {
       try {
-        await requireAdmin();
+        await requireAuth();
         if (id) {
           title.textContent = 'Modifier le stade';
           const s = await dbStades.get(id);
@@ -167,7 +167,7 @@
       };
 
       try {
-        await requireAdmin();
+        await requireAuth();
         var stadeId = id;
         if (id) {
           if (hasFiles) {

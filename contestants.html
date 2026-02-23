@@ -85,7 +85,7 @@
       loading.style.display = 'block';
       errEl.textContent = '';
       try {
-        await requireAdmin();
+        await requireAuth();
         const sport = filterSport.value || '';
         allList = await dbContestants.list(sport || undefined);
         loading.style.display = 'none';
