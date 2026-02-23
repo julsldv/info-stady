@@ -83,12 +83,25 @@
         return null;
       }
 
+      var adminEmail = (typeof window.ADMIN_EMAIL !== 'undefined') ? window.ADMIN_EMAIL : 'admin@stady.com';
       if (window.firebaseAuth) {
         window.firebaseAuth.onAuthStateChanged(function(user) {
           if (user) {
+            if ((user.email || '').toLowerCase() !== adminEmail) {
+              loginError.textContent = 'Accès réservé. Seul le compte ' + adminEmail + ' peut accéder au backoffice.';
+              loginBox.style.display = 'block';
+              dashboard.style.display = 'none';
+              window.firebaseAuth.signOut();
+              return;
+            }
+            loginError.textContent = '';
             loginBox.style.display = 'none';
             dashboard.style.display = 'block';
           } else {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('error') === 'access_denied') {
+              loginError.textContent = 'Accès refusé. Seul le compte ' + adminEmail + ' peut accéder au backoffice.';
+            }
             loginBox.style.display = 'block';
             dashboard.style.display = 'none';
           }

@@ -158,7 +158,7 @@
 
       (async function load() {
         try {
-          await requireAuth();
+          await requireAdmin();
           var list = await dbStades.list();
           loading.style.display = 'none';
           if (list.length === 0) {
