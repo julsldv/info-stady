@@ -39,7 +39,7 @@
 <body>
   <div id="login-box" class="login-box">
     <h1>Backoffice Stady</h1>
-    <p>Connexion avec ton compte admin (Firebase Auth). <a href="config-check.html">Vérifier la config</a></p>
+    <p>Connexion avec ton compte admin (Firebase Auth).</p>
     <p id="login-error" class="error"></p>
     <form id="login-form">
       <div class="form-group">
@@ -101,7 +101,7 @@
         e.preventDefault();
         loginError.textContent = '';
         if (!window.firebaseAuth) {
-          loginError.innerHTML = 'Firebase n’a pas pu se charger. <a href="config-check.html">Vérifier la config</a> ou réessaie en rechargeant la page.';
+          loginError.textContent = 'Firebase n’a pas pu se charger. Réessaie en rechargeant la page.';
           return;
         }
         var email = loginForm.email.value.trim();
