@@ -7,6 +7,57 @@
 </head>
 <body>
   <h1>Stady</h1>
-  <p><a href="backoffice/">Accéder au backoffice</a></p>
+
+  <p id="lang-label">Langue / Language</p>
+  <p>
+    <button type="button" id="btn-fr">Français</button>
+    <button type="button" id="btn-en">English</button>
+  </p>
+
+  <ul>
+    <li><a href="backoffice/" id="link-backoffice">Accéder au backoffice</a></li>
+    <li><a href="cgu-fr.html" id="link-cgu">Conditions générales d'utilisation</a></li>
+    <li><a href="privacy-fr.html" id="link-privacy">Politique de confidentialité</a></li>
+    <li><a href="mailto:appstady@gmail.com" id="link-contact">Nous contacter</a></li>
+  </ul>
+
+  <script>
+(function() {
+  var LANG_KEY = 'stady_lang';
+  var texts = {
+    fr: {
+      backoffice: "Accéder au backoffice",
+      cgu: "Conditions générales d'utilisation",
+      privacy: "Politique de confidentialité",
+      contact: "Nous contacter"
+    },
+    en: {
+      backoffice: "Access backoffice",
+      cgu: "Terms of use",
+      privacy: "Privacy policy",
+      contact: "Contact us"
+    }
+  };
+
+  function applyLang(lang) {
+    if (!texts[lang]) lang = 'fr';
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+    var t = texts[lang];
+    document.getElementById('link-backoffice').textContent = t.backoffice;
+    document.getElementById('link-cgu').textContent = t.cgu;
+    document.getElementById('link-cgu').href = lang === 'fr' ? 'cgu-fr.html' : 'cgu-en.html';
+    document.getElementById('link-privacy').textContent = t.privacy;
+    document.getElementById('link-privacy').href = lang === 'fr' ? 'privacy-fr.html' : 'privacy-en.html';
+    document.getElementById('link-contact').textContent = t.contact;
+  }
+
+  var saved = localStorage.getItem(LANG_KEY);
+  if (saved === 'fr' || saved === 'en') applyLang(saved);
+  else applyLang('fr');
+
+  document.getElementById('btn-fr').addEventListener('click', function() { applyLang('fr'); });
+  document.getElementById('btn-en').addEventListener('click', function() { applyLang('en'); });
+})();
+  </script>
 </body>
 </html>
