@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backoffice Stady</title>
+  <script>
+    (function() {
+      var p = location.pathname;
+      var isSubpath = p && p !== '/' && location.origin !== 'file://';
+      if (isSubpath) {
+        var base = document.createElement('base');
+        base.href = location.origin + p.replace(/\/?[^/]*$/, '') + '/';
+        document.head.appendChild(base);
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>#login-error a { color: #1a73e8; } #login-error code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-app-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-auth-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.0/firebase-firestore-compat.min.js"></script>
+  <script>
+    window.FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCQuu6AshX4Kz3EJoAntNAzNxxzIkDEbpw",
+      authDomain: "stady-98226.firebaseapp.com",
+      projectId: "stady-98226",
+      storageBucket: "stady-98226.firebasestorage.app",
+      messagingSenderId: "1006357453956",
+      appId: "1:1006357453956:web:4fad228b047bbc80cc76d1"
+    };
+    if (window.FIREBASE_CONFIG.apiKey) {
+      firebase.initializeApp(window.FIREBASE_CONFIG);
+      window.firebaseAuth = firebase.auth();
+    }
+  </script>
+  <script src="js/auth.js"></script>
+</head>
+<body>
+  <div id="login-box" class="login-box">
+    <h1>Backoffice Stady</h1>
+    <p>Connexion avec ton compte admin (Firebase Auth). <a href="config-check.html">Vérifier la config</a></p>
+    <p id="login-error" class="error"></p>
+    <form id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" name="password" required autocomplete="current-password">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Se connecter</button>
+      </div>
+    </form>
+  </div>
+  <div id="dashboard" class="container" style="display: none;">
+    <div class="dashboard-header">
+      <h1>Backoffice Stady</h1>
+      <button type="button" id="logout" class="btn btn-secondary">Déconnexion</button>
+    </div>
+    <p>Administration Firestore (projet stady-98226).</p>
+    <nav>
+      <a href="stades.html">Stades</a>
+      <a href="contestants.html">Contestants</a>
+    </nav>
+  </div>
+  <script>
+    (function() {
+      const loginBox = document.getElementById('login-box');
+      const dashboard = document.getElementById('dashboard');
+      const loginForm = document.getElementById('login-form');
+      const loginError = document.getElementById('login-error');
+      const logoutBtn = document.getElementById('logout');
+
+      var ADMIN_EMAIL = 'admin@stady.com';
+      if (window.firebaseAuth) {
+        window.firebaseAuth.onAuthStateChanged(function(user) {
+          if (user) {
+            if ((user.email || '').toLowerCase() !== ADMIN_EMAIL) {
+              loginError.textContent = 'Accès réservé.';
+              loginBox.style.display = 'block';
+              dashboard.style.display = 'none';
+              window.firebaseAuth.signOut();
+              return;
+            }
+            loginError.textContent = '';
+            loginBox.style.display = 'none';
+            dashboard.style.display = 'block';
+          } else {
+            loginBox.style.display = 'block';
+            dashboard.style.display = 'none';
+          }
+        });
+      } else {
+        loginBox.style.display = 'block';
+      }
+
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        loginError.textContent = '';
+        if (!window.firebaseAuth) {
+          loginError.innerHTML = 'Firebase n’a pas pu se charger. <a href="config-check.html">Vérifier la config</a> ou réessaie en rechargeant la page.';
+          return;
+        }
+        var email = loginForm.email.value.trim();
+        var password = loginForm.password.value;
+        try {
+          await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+        } catch (err) {
+          loginError.textContent = err.message || 'Erreur de connexion';
+        }
+      });
+
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (window.firebaseAuth) window.firebaseAuth.signOut();
+      });
+    })();
+  </script>
+</body>
+</html>
